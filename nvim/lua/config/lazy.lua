@@ -16,6 +16,7 @@ require('lazy').setup {
 
   -- Autoclosing tags
   'windwp/nvim-ts-autotag',
+  require 'plugins.autopairs',
 
   -- Git integration: shows git changes in the sign column
   -- require 'plugins.gitsigns',
@@ -39,11 +40,6 @@ require('lazy').setup {
   -- Completion engine for code suggestions
   require 'plugins.blink-cmp',
 
-  -- color schemes for Neovim
-  -- require 'plugins.tokyonight',
-  -- require 'plugins.catppuccin',
-  -- require 'plugins.github-nvim-theme',
-
   -- Highlight and manage TODO comments
   require 'plugins.todo-comments',
 
@@ -58,4 +54,7 @@ require('lazy').setup {
 
   -- File explorer sidebar for Neovim
   require 'plugins.neo-tree',
+
+  -- color schemes for Neovim
+  require 'plugins.colortheme',
 }

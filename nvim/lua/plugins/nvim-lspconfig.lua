@@ -171,7 +171,7 @@ return {
       -- emmet_language_server = {},
       -- cssls = {},
       -- tailwindcss = {},
-      -- pyright = {},
+      pyright = {},
 
       -- Lua Development
       lua_ls = {
