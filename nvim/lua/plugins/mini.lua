@@ -1,4 +1,7 @@
 return {
   'nvim-mini/mini.nvim',
-  version = '*'
+  version = '*',
+  config = function()
+    require('mini.surround').setup()
+  end
 }
