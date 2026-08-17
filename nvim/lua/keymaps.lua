@@ -62,3 +62,17 @@ map('<leader>gl', '<cmd>Git log --oneline<CR>', '[G]it [L]og Oneline')
 
 -- Dismiss Noice Notification
 map('<leader>nd', '<cmd>NoiceDismiss<CR>', '[D]ismiss [N]otifications')
+
+-- Format
+map(
+  '<leader>f',
+  function()
+    require('conform').format {
+      lsp_format = 'fallback',
+      async = false,
+      timeout_ms = 500,
+    }
+  end,
+  '[F]ormat file or range',
+  { 'n', 'v' }
+)

@@ -35,7 +35,7 @@ require('lazy').setup {
   require 'plugins.nvim-lspconfig',
 
   -- Formatting and linting integration
-  -- require 'plugins.conform',
+  require 'plugins.conform',
 
   -- Completion engine for code suggestions
   require 'plugins.blink-cmp',
