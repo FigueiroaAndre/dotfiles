@@ -63,6 +63,27 @@ map('<leader>gl', '<cmd>Git log --oneline<CR>', '[G]it [L]og Oneline')
 -- Dismiss Noice Notification
 map('<leader>nd', '<cmd>NoiceDismiss<CR>', '[D]ismiss [N]otifications')
 
+-- Markdown preview via leaf (TUI)
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('leaf-markdown-preview', { clear = true }),
+  pattern = 'markdown',
+  callback = function(event)
+    local map_leaf = function(keys, split_cmd, desc)
+      vim.keymap.set('n', keys, function()
+        local file = vim.fn.shellescape(vim.fn.expand '%')
+        vim.cmd((split_cmd and split_cmd .. ' | ' or '') .. 'terminal leaf ' .. file)
+        vim.cmd 'startinsert'
+      end, { buffer = event.buf, desc = desc })
+    end
+
+    -- [M]ark[d]own preview, [S]plit: open leaf in a new vertical split
+    map_leaf('<leader>mds', 'vsplit', '[M]ark[d]own preview, [S]plit (leaf)')
+
+    -- [M]ark[d]own preview, [F]ocus: leaf takes over the current window
+    map_leaf('<leader>mdf', nil, '[M]ark[d]own preview, [F]ocus (leaf)')
+  end,
+})
+
 -- Format
 map(
   '<leader>f',
