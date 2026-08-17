@@ -17,14 +17,14 @@ return {
     require('telescope').setup {
       defaults = {
         file_ignore_patterns = {
-          '^node_modules/',
-          '^coverage/',
-          '^bin/',
-          '^obj/',
-          '^.git/',
-          '^.angular/',
-          '^.venv/',
-          '^.dist/',
+          'node_modules/',
+          'coverage/',
+          'bin/',
+          'obj/',
+          '.git/',
+          '.angular/',
+          '.venv/',
+          '.dist/',
           '__pycache__',
         },
         mappings = {
