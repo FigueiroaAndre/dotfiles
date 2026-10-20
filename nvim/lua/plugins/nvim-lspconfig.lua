@@ -180,7 +180,23 @@ return {
       -- emmet_language_server = {},
       -- cssls = {},
       -- tailwindcss = {},
-      pyright = {},
+
+      -- Python Development
+      pyright = {
+        -- Use the project's `.venv` interpreter (project root first, then cwd) when one exists.
+        -- Mutate the settings table in place: the client already holds a reference to it.
+        on_init = function(client)
+          for _, dir in ipairs { client.root_dir, vim.fn.getcwd() } do
+            local python = dir and vim.fs.joinpath(dir, '.venv', 'bin', 'python')
+            if python and vim.fn.executable(python) == 1 then
+              client.settings.python = client.settings.python or {}
+              client.settings.python.pythonPath = python
+              client:notify('workspace/didChangeConfiguration', { settings = client.settings })
+              return
+            end
+          end
+        end,
+      },
 
       -- Lua Development
       lua_ls = {
