@@ -15,7 +15,7 @@ require('lazy').setup {
   'tpope/vim-sleuth',
 
   -- Autoclosing tags
-  'windwp/nvim-ts-autotag',
+  { 'windwp/nvim-ts-autotag', event = 'InsertEnter', opts = {} },
   require 'plugins.autopairs',
 
   -- Git integration: shows git changes in the sign column
