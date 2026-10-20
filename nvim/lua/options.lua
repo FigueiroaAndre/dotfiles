@@ -13,9 +13,7 @@ vim.opt.relativenumber = true
 vim.opt.showmode = false -- Dont show current mode, statusline already shows it
 
 -- Sync clipboard between OS and Neovim
-vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
-end)
+vim.schedule(function() vim.opt.clipboard = 'unnamedplus' end)
 
 vim.opt.breakindent = true
 
@@ -46,7 +44,5 @@ vim.opt.scrolloff = 10
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
+  callback = function() vim.highlight.on_yank() end,
 })
