@@ -25,12 +25,16 @@ return {
     -- C-k: Toggle signature help (if signature.enabled = true)
     --
     -- See :h blink-cmp-config-keymap for defining your own keymap
-    keymap = { preset = 'default' },
+    keymap = {
+      preset = 'default',
+      -- Open the completion menu (or toggle docs if already open)
+      ['<C-c>'] = { 'show', 'show_documentation', 'hide_documentation' },
+    },
 
     appearance = {
       -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
       -- Adjusts spacing to ensure icons are aligned
-      nerd_font_variant = 'mono'
+      nerd_font_variant = 'mono',
     },
 
     -- (Default) Only show the documentation popup when manually triggered
@@ -47,7 +51,7 @@ return {
     -- when the Rust fuzzy matcher is not available, by using `implementation = "prefer_rust"`
     --
     -- See the fuzzy documentation for more information
-    fuzzy = { implementation = "prefer_rust_with_warning" }
+    fuzzy = { implementation = 'prefer_rust_with_warning' },
   },
-  opts_extend = { "sources.default" }
+  opts_extend = { 'sources.default' },
 }
