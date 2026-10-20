@@ -150,6 +150,17 @@ return {
     --  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
     local capabilities = require('blink.cmp').get_lsp_capabilities()
 
+    -- Newer Angular projects name templates `foo.html` (no `.component`), so treat any
+    -- .html inside an Angular workspace (angular.json up the tree) as `htmlangular`.
+    vim.filetype.add {
+      extension = {
+        html = function(path)
+          if vim.fs.root(path, 'angular.json') then return 'htmlangular' end
+          return 'html'
+        end,
+      },
+    }
+
     -- Enable the following language servers
     --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
     --
@@ -164,8 +175,8 @@ return {
       csharp_ls = {},
 
       -- Frontend Development
-      -- angularls = {},
-      -- ts_ls = {},
+      ts_ls = {},
+      angularls = {},
       -- emmet_language_server = {},
       -- cssls = {},
       -- tailwindcss = {},
