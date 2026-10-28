@@ -38,6 +38,7 @@ require('which-key').setup {
     { '<leader>g', group = '[G]it' },
     { '<leader>gt', group = '[G]it [T]oggle' },
     { '<leader>l', group = '[L]SP' },
+    { '<leader>n', group = '[N]otifications' },
     { '<leader>s', group = '[S]earch' },
     { '<leader>t', group = '[T]oggle' },
   },

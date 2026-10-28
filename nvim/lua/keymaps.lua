@@ -63,6 +63,9 @@ map('<leader>gl', '<cmd>Git log --oneline<CR>', '[G]it [L]og Oneline')
 -- Dismiss Noice Notification
 map('<leader>nd', '<cmd>NoiceDismiss<CR>', '[D]ismiss [N]otifications')
 
+-- Show Noice Notification history
+map('<leader>ns', '<cmd>Noice<CR>', '[S]how [N]otifications')
+
 -- Markdown preview via leaf (TUI)
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('leaf-markdown-preview', { clear = true }),
