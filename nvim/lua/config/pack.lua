@@ -18,6 +18,13 @@ vim.api.nvim_create_autocmd('PackChanged', {
       if res.code ~= 0 then vim.notify('telescope-fzf-native build failed:\n' .. res.stderr, vim.log.levels.ERROR) end
     end
 
+    -- Downloads the pre-built preview server for the version in package.json
+    if name == 'markdown-preview.nvim' then
+      local pkg = vim.json.decode(table.concat(vim.fn.readfile(ev.data.path .. '/package.json'), '\n'))
+      local res = vim.system({ './install.sh', 'v' .. pkg.version }, { cwd = ev.data.path .. '/app' }):wait()
+      if res.code ~= 0 then vim.notify('markdown-preview install failed:\n' .. res.stderr, vim.log.levels.ERROR) end
+    end
+
     -- Parsers are installed by `plugins/nvim-treesitter.lua`; only refresh them on update
     if name == 'nvim-treesitter' and kind == 'update' then
       if not ev.data.active then vim.cmd.packadd 'nvim-treesitter' end
@@ -85,6 +92,9 @@ local specs = {
 
   -- File explorer sidebar for Neovim
   { src = gh 'nvim-neo-tree/neo-tree.nvim', version = vim.version.range '*' },
+
+  -- Live markdown preview in the browser
+  gh 'iamcco/markdown-preview.nvim',
 }
 
 -- Native fzf sorter for telescope (needs `make` to build)
@@ -107,3 +117,4 @@ require 'plugins.mini'
 require 'plugins.nvim-treesitter'
 require 'plugins.noice'
 require 'plugins.neo-tree'
+require 'plugins.markdown-preview'
