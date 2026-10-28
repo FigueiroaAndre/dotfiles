@@ -1,17 +1,25 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
--- Approximation of the iTerm2 default (Dark Background) profile
+-- Palette taken from my iTerm2 setup
 config.colors = {
-	foreground = "#c7c7c7",
-	background = "#000000",
-	cursor_bg = "#c7c7c7",
-	cursor_fg = "#000000",
-	cursor_border = "#c7c7c7",
-	selection_bg = "#c1deff",
-	selection_fg = "#000000",
-	ansi = { "#000000", "#c91b00", "#00c200", "#c7c400", "#0225c7", "#c930c7", "#00c5c7", "#c7c7c7" },
-	brights = { "#686868", "#ff6e67", "#5ffa68", "#fffc67", "#6871ff", "#ff77ff", "#60fdff", "#ffffff" },
+	foreground = "#f2f2f2",
+	background = "#101010",
+	cursor_bg = "#f2f2f2",
+	cursor_fg = "#101010",
+	cursor_border = "#f2f2f2",
+	selection_bg = "#3a3a3a",
+	selection_fg = "#f2f2f2",
+	ansi = { "#101010", "#dd9d8d", "#91af99", "#d4b199", "#a299c1", "#cd99be", "#d1829c", "#989898" },
+	brights = { "#787878", "#e3807d", "#a8f0da", "#eabf98", "#aea6cc", "#d7a4c9", "#dc8fa9", "#f2f2f2" },
+	tab_bar = {
+		background = "#101010",
+		active_tab = { bg_color = "#2a2a2a", fg_color = "#e796b1" },
+		inactive_tab = { bg_color = "#1c1c1c", fg_color = "#989898" },
+		inactive_tab_hover = { bg_color = "#1c1c1c", fg_color = "#989898" },
+		new_tab = { bg_color = "#1c1c1c", fg_color = "#989898" },
+		new_tab_hover = { bg_color = "#2a2a2a", fg_color = "#e796b1" },
+	},
 }
 config.window_background_opacity = 0.9
 config.font = wezterm.font("JetBrains Mono")
