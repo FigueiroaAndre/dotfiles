@@ -20,6 +20,7 @@ local parsers = {
   'c_sharp',
   'json',
   'python',
+  'java',
   'javascript',
   'typescript',
   'tsx',

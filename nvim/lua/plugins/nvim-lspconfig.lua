@@ -194,6 +194,25 @@ local servers = {
     end,
   },
 
+  -- Java Development
+  -- jdtls 1.62+ needs Java 25 to run (its launcher only checks for 21, then exits with code 13).
+  -- Point just the server at a JDK 25 via macOS `java_home`; projects keep their own JDK.
+  jdtls = {
+    cmd_env = {
+      JAVA_HOME = (function()
+        if vim.fn.executable '/usr/libexec/java_home' == 0 then return nil end
+        local home = vim.trim(vim.fn.system { '/usr/libexec/java_home', '-v', '25+' })
+        return vim.v.shell_error == 0 and home or nil
+      end)(),
+    },
+    -- Standalone files (no build file or .git above them) would get no root, so jdtls
+    -- reports "non-project file" with syntax errors only. Fall back to the file's folder.
+    root_dir = function(bufnr, on_dir)
+      local fname = vim.api.nvim_buf_get_name(bufnr)
+      on_dir(vim.fs.root(bufnr, vim.lsp.config.jdtls.root_markers) or vim.fs.dirname(fname))
+    end,
+  },
+
   -- Lua Development
   lua_ls = {
     -- cmd = { ... },
