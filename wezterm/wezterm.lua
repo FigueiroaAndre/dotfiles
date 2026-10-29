@@ -22,7 +22,10 @@ config.colors = {
 	},
 }
 config.window_background_opacity = 0.9
-config.font = wezterm.font("JetBrains Mono")
+config.font = wezterm.font_with_fallback({
+	"JetBrainsMono Nerd Font",
+	"JetBrains Mono",
+})
 
 config.default_prog = { "zsh", "-l" }
 config.prefer_to_spawn_tabs = true
