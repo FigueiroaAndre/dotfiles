@@ -35,6 +35,13 @@ config.keys = {
 	{ key = "w", mods = "ALT", action = wezterm.action.CloseCurrentTab({ confirm = false }) },
 	{ key = "p", mods = "ALT", action = wezterm.action.ActivateTabRelative(-1) },
 	{ key = "n", mods = "ALT", action = wezterm.action.ActivateTabRelative(1) },
+	{ key = "|", mods = "ALT|SHIFT", action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ key = "-", mods = "ALT", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ key = "h", mods = "ALT", action = wezterm.action.ActivatePaneDirection("Left") },
+	{ key = "j", mods = "ALT", action = wezterm.action.ActivatePaneDirection("Down") },
+	{ key = "k", mods = "ALT", action = wezterm.action.ActivatePaneDirection("Up") },
+	{ key = "l", mods = "ALT", action = wezterm.action.ActivatePaneDirection("Right") },
+	{ key = "x", mods = "ALT", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
 }
 
 for i = 1, 9 do
