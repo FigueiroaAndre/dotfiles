@@ -32,6 +32,7 @@ config.prefer_to_spawn_tabs = true
 
 config.keys = {
 	{ key = "t", mods = "ALT", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
+	{ key = "w", mods = "ALT", action = wezterm.action.CloseCurrentTab({ confirm = false }) },
 	{ key = "p", mods = "ALT", action = wezterm.action.ActivateTabRelative(-1) },
 	{ key = "n", mods = "ALT", action = wezterm.action.ActivateTabRelative(1) },
 }
