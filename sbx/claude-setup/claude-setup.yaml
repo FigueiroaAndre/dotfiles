@@ -1,0 +1,165 @@
+# syntax=docker/sandbox-kit:3
+# yaml-language-server: $schema=https://raw.githubusercontent.com/docker/sandbox-kit-spec/main/schema/kit.schema.json
+#
+# My Claude Code preferences for Docker Sandboxes.
+# Use: sbx run claude --kit ~/dotfiles/sbx/claude-setup
+schemaVersion: "3"
+kind: mixin
+displayName: Claude setup
+description: Vim editor mode and a custom status line for Claude Code
+version: "1.0.0"
+
+# Run after the claude kit, so its settings.json exists before we edit it.
+requires: ["claude"]
+
+capabilities:
+  - type: com.docker.sandbox/lifecycle@1
+    config:
+      files:
+        # The status line script. Edit it here. Claude runs it with bash.
+        - path: /home/agent/.claude/statusline.sh
+          mode: "0755"
+          description: Status line script
+          content: |
+            #!/bin/bash
+            # Claude Code status line for Docker Sandboxes.
+            # Format: Model (effort) | branch | ctx N% (used/size) | 5h N% (reset) | 7d N% (reset) | $cost
+            # Colors come from the wezterm palette in ~/dotfiles/wezterm/wezterm.lua.
+            input=$(cat)
+
+            # Keep the Docker Sandboxes desktop view working: forward the JSON to the
+            # hook that the default statusLine used. Run it in the background, silent.
+            HOOK=/usr/local/bin/sbx-claude-hook
+            if [ -x "$HOOK" ]; then
+              ( printf '%s' "$input" | "$HOOK" claude-status >/dev/null 2>&1 & ) >/dev/null 2>&1
+            fi
+
+            command -v jq >/dev/null 2>&1 || { printf 'statusline: jq not found'; exit 0; }
+
+            {
+              IFS= read -r model; IFS= read -r effort; IFS= read -r dir
+              IFS= read -r ctx_pct; IFS= read -r ctx_tok; IFS= read -r ctx_size
+              IFS= read -r h5; IFS= read -r h5_reset; IFS= read -r d7; IFS= read -r d7_reset
+              IFS= read -r cost
+            } <<EOF
+            $(printf '%s' "$input" | jq -r '
+              (.model.display_name // ""),
+              (.effort.level // ""),
+              (.workspace.current_dir // .cwd // ""),
+              (.context_window.used_percentage // "" | tostring),
+              (.context_window.total_input_tokens // "" | tostring),
+              (.context_window.context_window_size // "" | tostring),
+              (.rate_limits.five_hour.used_percentage // "" | tostring),
+              (.rate_limits.five_hour.resets_at // "" | tostring),
+              (.rate_limits.seven_day.used_percentage // "" | tostring),
+              (.rate_limits.seven_day.resets_at // "" | tostring),
+              (.cost.total_cost_usd // "" | tostring)
+            ' 2>/dev/null)
+            EOF
+
+            # 24-bit colors from the wezterm palette.
+            rgb() { printf '\033[38;2;%d;%d;%dm' "0x${1:0:2}" "0x${1:2:2}" "0x${1:4:2}"; }
+            PINK=$(rgb e796b1)   # active tab
+            FG=$(rgb f2f2f2)     # foreground
+            DIM=$(rgb 989898)    # inactive tab
+            GREEN=$(rgb 91af99)  # ansi green
+            YELLOW=$(rgb d4b199) # ansi yellow
+            RED=$(rgb dd9d8d)    # ansi red
+            N=$'\033[0m'
+
+            out=""
+            add() { out="${out:+$out${DIM} | ${N}}$1"; }
+
+            # Green below 60%, yellow below 85%, red from 85%.
+            pct() {
+              local p
+              p=$(LC_ALL=C printf '%.0f' "$1" 2>/dev/null) || p=0
+              if [ "$p" -ge 85 ]; then printf '%s%d%%%s' "$RED" "$p" "$N"
+              elif [ "$p" -ge 60 ]; then printf '%s%d%%%s' "$YELLOW" "$p" "$N"
+              else printf '%s%d%%%s' "$GREEN" "$p" "$N"; fi
+            }
+
+            # 43000 -> 43k, 1000000 -> 1.0M
+            tokens() {
+              local n=${1%.*}
+              if [ "$n" -ge 1000000 ]; then printf '%d.%dM' $((n / 1000000)) $((n % 1000000 / 100000))
+              elif [ "$n" -ge 1000 ]; then printf '%dk' $((n / 1000))
+              else printf '%d' "$n"; fi
+            }
+
+            # Unix time -> time left, e.g. 4h53m, 5d22h, 12m
+            until_reset() {
+              local at=${1%.*} left
+              case "$at" in '' | *[!0-9]*) return ;; esac
+              left=$((at - $(date +%s)))
+              [ "$left" -le 0 ] && return
+              if [ "$left" -ge 86400 ]; then printf '%dd%dh' $((left / 86400)) $((left % 86400 / 3600))
+              elif [ "$left" -ge 3600 ]; then printf '%dh%dm' $((left / 3600)) $((left % 3600 / 60))
+              else printf '%dm' $((left / 60)); fi
+            }
+
+            # 1. Model (effort)
+            if [ -n "$model" ]; then
+              s="${PINK}${model}${N}"
+              [ -n "$effort" ] && s="$s ${DIM}(${effort})${N}"
+              add "$s"
+            fi
+
+            # 2. Git branch (or short commit when HEAD is detached)
+            if [ -n "$dir" ] && [ -d "$dir" ] && command -v git >/dev/null 2>&1; then
+              br=$(git -C "$dir" --no-optional-locks symbolic-ref --short -q HEAD 2>/dev/null ||
+                git -C "$dir" --no-optional-locks rev-parse --short HEAD 2>/dev/null)
+              [ -n "$br" ] && add "${PINK}${br}${N}"
+            fi
+
+            # 3. Context window
+            if [ -n "$ctx_pct" ]; then
+              s="${FG}ctx${N} $(pct "$ctx_pct")"
+              [ -n "$ctx_tok" ] && [ -n "$ctx_size" ] &&
+                s="$s ${DIM}($(tokens "$ctx_tok")/$(tokens "$ctx_size"))${N}"
+              add "$s"
+            fi
+
+            # 4. Rate limits (only on Pro/Max plans, after the first response)
+            limit() {
+              [ -z "$2" ] && return
+              local s r
+              s="${FG}$1${N} $(pct "$2")"
+              r=$(until_reset "$3")
+              [ -n "$r" ] && s="$s ${DIM}(${r})${N}"
+              add "$s"
+            }
+            limit 5h "$h5" "$h5_reset"
+            limit 7d "$d7" "$d7_reset"
+
+            # 5. Session cost
+            if [ -n "$cost" ]; then
+              c=$(LC_ALL=C printf '%.2f' "$cost" 2>/dev/null) && add "${GREEN}\$${c}${N}"
+            fi
+
+            printf '%s' "$out"
+      install:
+        # The claude kit writes ~/.claude/settings.json at create time.
+        # Merge our keys into it and keep everything else.
+        - command: &merge-settings |
+            set -e
+            f=/home/agent/.claude/settings.json
+            mkdir -p /home/agent/.claude
+            [ -s "$f" ] || echo '{}' > "$f"
+            tmp=$(mktemp)
+            jq '.editorMode = "vim"
+              | .statusLine = {
+                  "type": "command",
+                  "command": "bash /home/agent/.claude/statusline.sh",
+                  "refreshInterval": 60
+                }' "$f" > "$tmp"
+            cat "$tmp" > "$f"
+            rm -f "$tmp"
+            [ "$(id -u)" != 0 ] || chown agent:agent /home/agent/.claude "$f"
+          user: "0"
+          description: Set vim editor mode and the status line in settings.json
+      startup:
+        # Same merge on every start, in case the base kit rewrote the file.
+        - command: *merge-settings
+          user: agent
+          description: Re-apply vim editor mode and the status line

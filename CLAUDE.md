@@ -7,6 +7,7 @@ This repository holds config files for several apps. It is not a coding project.
 - `nvim/` – Neovim config (Neovim 0.12+, uses native `vim.pack`)
 - `tmux/tmux.conf` – tmux config
 - `wezterm/wezterm.lua` – WezTerm config (a stray `wezterm.lua` also exists at the repo root in git; the `wezterm/` folder is untracked)
+- `sbx/claude-setup/` – Docker Sandboxes kit for Claude Code (vim mode, status line). Use with `sbx run claude --kit ~/dotfiles/sbx/claude-setup`
 
 Each app dir links to the place the app expects, with `ln -s ~/dotfiles/nvim ~/.config/nvim`. See `README.md`.
 
