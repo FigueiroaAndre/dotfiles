@@ -205,12 +205,35 @@ local servers = {
         return vim.v.shell_error == 0 and home or nil
       end)(),
     },
-    -- Standalone files (no build file or .git above them) would get no root, so jdtls
-    -- reports "non-project file" with syntax errors only. Fall back to the file's folder.
+    -- Use a real build file (Maven/Gradle/Ant) when there is one. Otherwise (plain javac
+    -- layout) use the source root: the file's folder minus one folder per package segment.
+    -- `.git` is not a marker here: a repo root with no build file makes jdtls guess the
+    -- source folders, and packages in nested `src/` folders do not resolve.
     root_dir = function(bufnr, on_dir)
-      local fname = vim.api.nvim_buf_get_name(bufnr)
-      on_dir(vim.fs.root(bufnr, vim.lsp.config.jdtls.root_markers) or vim.fs.dirname(fname))
+      local build = vim.fs.root(bufnr, {
+        'pom.xml', 'build.gradle', 'build.gradle.kts',
+        'settings.gradle', 'settings.gradle.kts', 'mvnw', 'gradlew', 'build.xml',
+      })
+      if build then return on_dir(build) end
+
+      local dir = vim.fs.dirname(vim.api.nvim_buf_get_name(bufnr))
+      for _, line in ipairs(vim.api.nvim_buf_get_lines(bufnr, 0, 50, false)) do
+        local pkg = line:match '^%s*package%s+([%w_.]+)%s*;'
+        if pkg then
+          for _ in (pkg .. '.'):gmatch '[^.]+%.' do
+            dir = vim.fs.dirname(dir)
+          end
+          break
+        end
+      end
+      on_dir(dir)
     end,
+    -- With no build file, jdtls guesses the source folders (for `src/app` and `src/shop`
+    -- it picks `app/` and `shop/`). The root above is the source root, so say so.
+    -- Maven/Gradle projects ignore this setting.
+    settings = {
+      java = { project = { sourcePaths = { '.' } } },
+    },
   },
 
   -- Lua Development
